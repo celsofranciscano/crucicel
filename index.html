@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crucicel - Generador Profesional</title>
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuente Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Librería html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2563eb; /* Azul profesional */
+            --primary-hover: #1d4ed8;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* MAIN LAYOUT */
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr; /* Sidebar fija, contenido flexible */
+            gap: 2rem;
+        }
+
+        /* SIDEBAR (CONFIG) */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem;
+            background: #f9fafb;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background-color: #f9fafb;
+            border-color: var(--text-secondary);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* WORKSPACE (CRUCIGRAMA) */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        /* WRAPPER PARA DESCARGA */
+        #crossword-wrapper {
+            background: white;
+            padding: 40px; /* Padding por defecto para pantalla */
+            border-radius: 4px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden; /* Importante para que no se desborde visualmente */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 400px;
+        }
+
+        #grid {
+            display: grid;
+            gap: 0;
+            /* El borde exterior se maneja con CSS grid o un wrapper interno si es necesario */
+        }
+
+        .cell {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+        }
+
+        .cell.active {
+            border: 1px solid #000; /* Borde negro sólido para impresión */
+        }
+
+        .cell.empty {
+            visibility: hidden;
+        }
+
+        .cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: transparent;
+            color: #000;
+            padding: 0;
+            margin: 0;
+            caret-color: transparent;
+            cursor: default;
+        }
+
+        /* Números altamente visibles */
+        .cell .number {
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            font-size: 0.7em; /* Relativo al tamaño de celda */
+            font-weight: 700;
+            color: var(--primary); /* Color distintivo */
+            line-height: 1;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* OCULTAR RESPUESTAS */
+        .hidden-answers .cell input {
+            color: transparent;
+        }
+
+        /* CLUES SECTION */
+        .clues-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .clues-col h3 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .clues-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Multi-columna automática */
+            gap: 0.5rem;
+        }
+
+        .clues-list li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .clues-list li strong {
+            color: var(--text-main);
+            margin-right: 5px;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #111827;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-link {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .footer-link:hover { text-decoration: underline; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr; /* Una sola columna en tablets/móvil */
+                padding: 1rem;
+            }
+            
+            .sidebar {
+                order: 2; /* Poner config abajo en móvil si se prefiere, o dejar arriba */
+            }
+            
+            .workspace {
+                order: 1;
+            }
+
+            .clues-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header-content { padding: 0 1rem; }
+            .clues-list { grid-template-columns: 1fr; }
+            #crossword-wrapper { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="brand">
+                <i class="fa-solid fa-layer-group"></i> Crucicel
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                Generador de Producción v1.0
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- SIDEBAR DE CONFIGURACIÓN -->
+        <aside class="sidebar">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-code"></i> Datos JSON
+                </div>
+                <textarea id="jsonInput"></textarea>
+                <button class="btn btn-primary" style="margin-top: 15px;" onclick="processJson()">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generar Crucigrama
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-sliders"></i> Acciones
+                </div>
+                <div class="actions-grid">
+                    <button class="btn btn-outline" id="toggleBtn" onclick="toggleAnswers()">
+                        <i class="fa-solid fa-eye-slash"></i> Ocultar
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadImage()">
+                        <i class="fa-solid fa-download"></i> Descargar
+                    </button>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 10px; text-align: center;">
+                    La descarga se ajustará automáticamente al tamaño del papel.
+                </p>
+            </div>
+        </aside>
+
+        <!-- ÁREA DE TRABAJO -->
+        <section class="workspace">
+            <!-- Contenedor Blanco (Papel) -->
+            <div id="crossword-wrapper">
+                <div id="grid"></div>
+            </div>
+
+            <!-- Pistas -->
+            <div class="clues-section">
+                <div class="clues-col">
+                    <h3><i class="fa-solid fa-arrow-right-long"></i> Horizontales</h3>
+                    <ul id="h-clues" class="clues-list"></ul>
+                </div>
+                <div class="clues-col">
+                    <h3><i class="fa-solid fa-arrow-down-long"></i> Verticales</h3>
+                    <ul id="v-clues" class="clues-list"></ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div>Desarrollado por <strong>Celso Franciscano</strong></div>
+        <a href="https://github.com/celsofranciscano" target="_blank" class="footer-link">
+            <i class="fa-brands fa-github"></i> github.com/celsofranciscano
+        </a>
+    </footer>
+
+<script>
+    // DATOS INICIALES
+    const defaultData = {
+      "verticales": [
+        "reclutamiento", "seleccion", "capacitacion", "desempeno", 
+        "evaluacion", "liderazgo", "motivacion", "nomina", 
+        "contratacion", "beneficios", "competencias", "comunicacion", 
+        "retencion", "clima", "talento", "organizacional"
+      ],
+      "horizontales": [
+        "empleado", "empresa", "trabajo", "salario", "equipo", 
+        "jefe", "perfil", "puesto", "entrevista", "ascenso", 
+        "conflicto", "horario", "productividad", "cultura", 
+        "bienestar", "rendimiento"
+      ]
+    };
+
+    document.getElementById('jsonInput').value = JSON.stringify(defaultData, null, 2);
+    let answersVisible = true; 
+
+    window.onload = () => { processJson(); };
+
+    function toggleAnswers() {
+        answersVisible = !answersVisible;
+        const wrapper = document.getElementById('crossword-wrapper');
+        const btn = document.getElementById('toggleBtn');
+        
+        if (answersVisible) {
+            wrapper.classList.remove('hidden-answers');
+            btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Ocultar';
+        } else {
+            wrapper.classList.add('hidden-answers');
+            btn.innerHTML = '<i class="fa-solid fa-eye"></i> Mostrar';
+        }
+    }
+
+    async function downloadImage() {
+        const element = document.getElementById('crossword-wrapper');
+        const wasVisible = answersVisible;
+        
+        // 1. Preparar para captura: Mostrar respuestas si queremos la solución, o dejar oculto si es para jugar.
+        // Aquí asumimos que se descarga para IMPRIMIR/JUGAR, así que ocultamos respuestas.
+        if(wasVisible) toggleAnswers();
+        
+        // Pequeña espera para renderizado CSS
+        await new Promise(r => setTimeout(r, 100));
+
+        try {
+            // Capturar con escala alta para calidad de impresión
+            const canvas = await html2canvas(element, { 
+                scale: 3, 
+                backgroundColor: "#ffffff",
+                useCORS: true,
+                logging: false
+            });
+            
+            const link = document.createElement('a');
+            link.download = 'Crucicel-Crucigrama.png';
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        } catch (err) {
+            console.error(err);
+            alert("Error al generar imagen");
+        } finally {
+            if(wasVisible) toggleAnswers();
+        }
+    }
+
+    function processJson() {
+        const raw = document.getElementById('jsonInput').value;
+        try {
+            const data = JSON.parse(raw);
+            if(!data.verticales || !data.horizontales) throw new Error("Faltan claves");
+            
+            answersVisible = true;
+            document.getElementById('crossword-wrapper').classList.remove('hidden-answers');
+            document.getElementById('toggleBtn').innerHTML = '<i class="fa-solid fa-eye-slash"></i> Ocultar';
+            
+            generateCrossword(data);
+        } catch (e) {
+            alert("JSON inválido: " + e.message);
+        }
+    }
+
+    function generateCrossword(data) {
+        const gridEl = document.getElementById('grid');
+        gridEl.innerHTML = '';
+        document.getElementById('h-clues').innerHTML = '';
+        document.getElementById('v-clues').innerHTML = '';
+        
+        let bestLayout = null;
+        let maxScore = -1;
+
+        // Intentar generar la mejor distribución
+        const horizontales = [...data.horizontales].sort(() => Math.random() - 0.5);
+        const verticales = [...data.verticales].sort(() => Math.random() - 0.5);
+
+        for(let i=0; i<40; i++) {
+            const layout = tryGenerateLayout([...horizontales], [...verticales]);
+            if(layout && layout.placedWords.length > maxScore) {
+                maxScore = layout.placedWords.length;
+                bestLayout = layout;
+            }
+        }
+
+        if (!bestLayout) {
+            gridEl.innerHTML = '<p>Error generando cuadrícula.</p>';
+            return;
+        }
+
+        renderGrid(bestLayout);
+        renderClues(bestLayout);
+    }
+
+    // --- LÓGICA DE GENERACIÓN ---
+
+    function tryGenerateLayout(hList, vList) {
+        const gridSize = 40; 
+        let tempGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
+        let placed = [];
+        
+        if(hList.length === 0 && vList.length === 0) return null;
+
+        let startWord = hList.length > 0 ? hList.pop() : vList[0];
+        let isVerticalStart = false;
+        if(!startWord) return null;
+        if(!hList.length && vList.length) { startWord = vList.pop(); isVerticalStart = true; }
+
+        const startX = Math.floor(gridSize / 2) - Math.floor(startWord.length / 2);
+        const startY = Math.floor(gridSize / 2);
+        
+        placeWord(tempGrid, startWord, startX, startY, isVerticalStart ? 'vertical' : 'horizontal');
+        placed.push({ word: startWord, x: startX, y: startY, dir: isVerticalStart ? 'vertical' : 'horizontal' });
+
+        let queue = [];
+        hList.forEach(w => queue.push({w, d:'horizontal'}));
+        vList.forEach(w => queue.push({w, d:'vertical'}));
+        
+        let changed = true;
+        while(changed) {
+            changed = false;
+            queue.sort(() => Math.random() - 0.5);
+            for (let i = 0; i < queue.length; i++) {
+                const item = queue[i];
+                const pos = findBestPosition(tempGrid, item.w, item.d);
+                if (pos) {
+                    placeWord(tempGrid, item.w, pos.x, pos.y, item.d);
+                    placed.push({ word: item.w, x: pos.x, y: pos.y, dir: item.d });
+                    queue.splice(i, 1);
+                    i--;
+                    changed = true;
+                }
+            }
+        }
+
+        // Bounding Box
+        let minX = gridSize, maxX = 0, minY = gridSize, maxY = 0;
+        placed.forEach(p => {
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            let len = p.word.length;
+            if(p.dir === 'horizontal') maxX = Math.max(maxX, p.x + len);
+            else maxX = Math.max(maxX, p.x + 1);
+            if(p.dir === 'vertical') maxY = Math.max(maxY, p.y + len);
+            else maxY = Math.max(maxY, p.y + 1);
+        });
+
+        minX = Math.max(0, minX - 1); minY = Math.max(0, minY - 1);
+        maxX = Math.min(gridSize, maxX + 1); maxY = Math.min(gridSize, maxY + 1);
+
+        const width = maxX - minX;
+        const height = maxY - minY;
+
+        let finalGrid = [];
+        for(let y=minY; y<maxY; y++) {
+            let row = [];
+            for(let x=minX; x<maxX; x++) row.push(tempGrid[y][x]);
+            finalGrid.push(row);
+        }
+
+        placed.forEach(p => { p.x -= minX; p.y -= minY; });
+
+        // Numeración
+        placed.sort((a,b) => (a.y - b.y) || (a.x - b.x));
+        let counter = 1;
+        const numMap = {}; 
+        placed.forEach(p => {
+            const key = `${p.x},${p.y}`;
+            if(!numMap[key]) numMap[key] = counter++;
+            p.num = numMap[key];
+        });
+
+        return { grid: finalGrid, placedWords: placed, width, height };
+    }
+
+    function placeWord(grid, word, x, y, dir) {
+        for (let i = 0; i < word.length; i++) {
+            const char = word[i].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (dir === 'horizontal') grid[y][x + i] = char;
+            else grid[y + i][x] = char;
+        }
+    }
+
+    function findBestPosition(grid, word, dir) {
+        const size = grid.length;
+        let candidates = [];
+        for (let i = 0; i < word.length; i++) {
+            const char = word[i].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    if (grid[r][c] === char) {
+                        let sx = c - (dir === 'horizontal' ? i : 0);
+                        let sy = r - (dir === 'vertical' ? i : 0);
+                        if (isValidPlacement(grid, word, sx, sy, dir)) candidates.push({x: sx, y: sy});
+                    }
+                }
+            }
+        }
+        if(candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
+        return null;
+    }
+
+    function isValidPlacement(grid, word, x, y, dir) {
+        const size = grid.length;
+        if (x < 0 || y < 0) return false;
+        if (dir === 'horizontal' && x + word.length >= size) return false;
+        if (dir === 'vertical' && y + word.length >= size) return false;
+
+        for (let i = 0; i < word.length; i++) {
+            let cx = x + (dir === 'horizontal' ? i : 0);
+            let cy = y + (dir === 'vertical' ? i : 0);
+            let current = grid[cy][cx];
+            let target = word[i].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            if (current !== null && current !== target) return false; 
+
+            if (current === null) {
+                if (dir === 'horizontal') {
+                    if ((cy > 0 && grid[cy-1][cx] !== null) || (cy < size-1 && grid[cy+1][cx] !== null)) return false;
+                } else {
+                    if ((cx > 0 && grid[cy][cx-1] !== null) || (cx < size-1 && grid[cy][cx+1] !== null)) return false;
+                }
+            }
+        }
+        
+        let prevX = x - (dir==='horizontal'?1:0);
+        let prevY = y - (dir==='vertical'?1:0);
+        if(prevX>=0 && prevY>=0 && grid[prevY][prevX] !== null) return false;
+
+        let nextX = x + (dir==='horizontal'?word.length:0);
+        let nextY = y + (dir==='vertical'?word.length:0);
+        if(nextX<size && nextY<size && grid[nextY][nextX] !== null) return false;
+
+        return true;
+    }
+
+    function renderGrid(layout) {
+        const gridEl = document.getElementById('grid');
+        const wrapper = document.getElementById('crossword-wrapper');
+        
+        // Ajuste dinámico para pantalla:
+        // Calculamos un tamaño de celda que permita ver el grid completo sin scroll excesivo
+        // pero mantenemos un tamaño mínimo legible.
+        const containerWidth = wrapper.clientWidth - 80; // menos padding
+        const calculatedCellSize = Math.floor(containerWidth / layout.width);
+        const finalCellSize = Math.min(40, Math.max(20, calculatedCellSize)); // Entre 20px y 40px
+
+        gridEl.style.gridTemplateColumns = `repeat(${layout.width}, ${finalCellSize}px)`;
+        gridEl.style.gridTemplateRows = `repeat(${layout.height}, ${finalCellSize}px)`;
+
+        const numberMap = {};
+        layout.placedWords.forEach(w => numberMap[`${w.x},${w.y}`] = w.num);
+
+        for (let y = 0; y < layout.height; y++) {
+            for (let x = 0; x < layout.width; x++) {
+                const char = layout.grid[y][x];
+                const cellDiv = document.createElement('div');
+                
+                if (char) {
+                    cellDiv.className = 'cell active';
+                    if (numberMap[`${x},${y}`]) {
+                        const span = document.createElement('span');
+                        span.className = 'number';
+                        span.innerText = numberMap[`${x},${y}`];
+                        // Ajustar tamaño de número según celda
+                        span.style.fontSize = (finalCellSize * 0.25) + 'px';
+                        cellDiv.appendChild(span);
+                    }
+                    const input = document.createElement('input');
+                    input.type = "text";
+                    input.value = char;
+                    input.readOnly = true;
+                    input.tabIndex = -1;
+                    input.style.fontSize = (finalCellSize * 0.5) + 'px'; // Letra ocupa 50% de celda
+                    cellDiv.appendChild(input);
+                } else {
+                    cellDiv.className = 'cell empty';
+                }
+                gridEl.appendChild(cellDiv);
+            }
+        }
+    }
+
+    function renderClues(layout) {
+        const hUl = document.getElementById('h-clues');
+        const vUl = document.getElementById('v-clues');
+        const sorted = [...layout.placedWords].sort((a,b) => a.num - b.num);
+        sorted.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${item.num}.</strong> ${item.word}`;
+            if(item.dir === 'horizontal') hUl.appendChild(li);
+            else vUl.appendChild(li);
+        });
+    }
+</script>
+</body>
+</html>
