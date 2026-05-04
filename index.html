@@ -1,715 +1,1063 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crucicel - Generador Profesional</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crucicel - Generador Profesional Conectado</title>
     <!-- Iconos FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <!-- Fuente Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- Librería html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
+
     <style>
-        :root {
-            --primary: #2563eb; /* Azul profesional */
-            --primary-hover: #1d4ed8;
-            --bg-body: #f3f4f6;
-            --bg-card: #ffffff;
-            --text-main: #111827;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 16px;
-        }
+      :root {
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --secondary: #059669; /* Verde para verticales */
+        --bg-body: #f3f4f6;
+        --bg-card: #ffffff;
+        --text-main: #111827;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --radius: 16px;
+      }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
 
-        /* HEADER */
-        header {
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
+      header {
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
 
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+      .header-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
 
-        .brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+      .brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-        /* MAIN LAYOUT */
+      main {
+        flex: 1;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 2rem;
+      }
+
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+      }
+
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-main);
+      }
+
+      textarea {
+        width: 100%;
+        height: 200px;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: "Monaco", "Consolas", monospace;
+        font-size: 0.85rem;
+        background: #f9fafb;
+        resize: vertical;
+        transition: all 0.2s;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 0.95rem;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+      }
+
+      .btn-outline {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+      }
+
+      .btn-outline:hover {
+        background-color: #f9fafb;
+        border-color: var(--text-secondary);
+      }
+
+      .actions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .workspace {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        width: 100%;
+      }
+
+      #crossword-wrapper {
+        background: white;
+        padding: 40px;
+        border-radius: 4px;
+        box-shadow: var(--shadow-md);
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 400px;
+        max-width: 100%;
+      }
+
+      #grid {
+        display: grid;
+        gap: 0;
+      }
+
+      .cell {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+      }
+
+      .cell.active {
+        border: 1px solid #000;
+      }
+
+      .cell.empty {
+        visibility: hidden;
+      }
+
+      .cell input {
+        width: 100%;
+        height: 100%;
+        border: none;
+        text-align: center;
+        font-weight: 700;
+        text-transform: uppercase;
+        background: transparent;
+        color: #000;
+        padding: 0;
+        margin: 0;
+        caret-color: transparent;
+        cursor: default;
+      }
+
+      /* Numeración Secuencial Independiente */
+      .cell .number-h {
+        position: absolute;
+        top: 1px;
+        left: 2px;
+        font-size: 0.65em;
+        font-weight: 700;
+        color: var(--primary);
+        line-height: 1;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .cell .number-v {
+        position: absolute;
+        bottom: 1px;
+        right: 2px;
+        font-size: 0.65em;
+        font-weight: 700;
+        color: var(--secondary);
+        line-height: 1;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .hidden-answers .cell input {
+        color: transparent;
+      }
+
+      .clues-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        width: 100%;
+      }
+
+      .clues-col h3 {
+        font-size: 1.2rem;
+        color: var(--primary);
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .clues-list {
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.5rem;
+      }
+
+      .clues-list li {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+
+      .clues-list li strong {
+        color: var(--text-main);
+        margin-right: 5px;
+      }
+
+      footer {
+        background: #111827;
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        margin-top: auto;
+      }
+
+      .footer-link {
+        color: #60a5fa;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 0.5rem;
+      }
+
+      .footer-link:hover {
+        text-decoration: underline;
+      }
+
+      .status-message {
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        display: none;
+      }
+      .status-message.success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+        display: block;
+      }
+      .status-message.warning {
+        background: #fef9c3;
+        color: #854d0e;
+        border: 1px solid #fde047;
+        display: block;
+      }
+      .status-message.error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+        display: block;
+      }
+
+      .legend {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+        justify-content: center;
+      }
+      .legend span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .legend .dot-h {
+        color: var(--primary);
+        font-weight: 700;
+      }
+      .legend .dot-v {
+        color: var(--secondary);
+        font-weight: 700;
+      }
+
+      @media (max-width: 1024px) {
         main {
-            flex: 1;
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 350px 1fr; /* Sidebar fija, contenido flexible */
-            gap: 2rem;
+          grid-template-columns: 1fr;
+          padding: 1rem;
         }
-
-        /* SIDEBAR (CONFIG) */
         .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+          order: 2;
         }
-
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-main);
-        }
-
-        textarea {
-            width: 100%;
-            height: 200px;
-            padding: 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.85rem;
-            background: #f9fafb;
-            resize: vertical;
-            transition: all 0.2s;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 0.95rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-
-        .btn-outline {
-            background-color: white;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-        }
-
-        .btn-outline:hover {
-            background-color: #f9fafb;
-            border-color: var(--text-secondary);
-        }
-
-        .actions-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        /* WORKSPACE (CRUCIGRAMA) */
         .workspace {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            width: 100%;
+          order: 1;
         }
-
-        /* WRAPPER PARA DESCARGA */
-        #crossword-wrapper {
-            background: white;
-            padding: 40px; /* Padding por defecto para pantalla */
-            border-radius: 4px;
-            box-shadow: var(--shadow-md);
-            overflow: hidden; /* Importante para que no se desborde visualmente */
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 400px;
-        }
-
-        #grid {
-            display: grid;
-            gap: 0;
-            /* El borde exterior se maneja con CSS grid o un wrapper interno si es necesario */
-        }
-
-        .cell {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: white;
-        }
-
-        .cell.active {
-            border: 1px solid #000; /* Borde negro sólido para impresión */
-        }
-
-        .cell.empty {
-            visibility: hidden;
-        }
-
-        .cell input {
-            width: 100%;
-            height: 100%;
-            border: none;
-            text-align: center;
-            font-weight: 700;
-            text-transform: uppercase;
-            background: transparent;
-            color: #000;
-            padding: 0;
-            margin: 0;
-            caret-color: transparent;
-            cursor: default;
-        }
-
-        /* Números altamente visibles */
-        .cell .number {
-            position: absolute;
-            top: 1px;
-            left: 2px;
-            font-size: 0.7em; /* Relativo al tamaño de celda */
-            font-weight: 700;
-            color: var(--primary); /* Color distintivo */
-            line-height: 1;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* OCULTAR RESPUESTAS */
-        .hidden-answers .cell input {
-            color: transparent;
-        }
-
-        /* CLUES SECTION */
         .clues-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            width: 100%;
+          grid-template-columns: 1fr;
         }
+      }
 
-        .clues-col h3 {
-            font-size: 1.2rem;
-            color: var(--primary);
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+      @media (max-width: 600px) {
+        .header-content {
+          padding: 0 1rem;
         }
-
         .clues-list {
-            list-style: none;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Multi-columna automática */
-            gap: 0.5rem;
+          grid-template-columns: 1fr;
         }
-
-        .clues-list li {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
+        #crossword-wrapper {
+          padding: 10px;
         }
-
-        .clues-list li strong {
-            color: var(--text-main);
-            margin-right: 5px;
+        .legend {
+          flex-direction: column;
+          gap: 0.25rem;
         }
-
-        /* FOOTER */
-        footer {
-            background: #111827;
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .footer-link {
-            color: #60a5fa;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 0.5rem;
-        }
-
-        .footer-link:hover { text-decoration: underline; }
-
-        /* RESPONSIVE */
-        @media (max-width: 1024px) {
-            main {
-                grid-template-columns: 1fr; /* Una sola columna en tablets/móvil */
-                padding: 1rem;
-            }
-            
-            .sidebar {
-                order: 2; /* Poner config abajo en móvil si se prefiere, o dejar arriba */
-            }
-            
-            .workspace {
-                order: 1;
-            }
-
-            .clues-section {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .header-content { padding: 0 1rem; }
-            .clues-list { grid-template-columns: 1fr; }
-            #crossword-wrapper { padding: 10px; }
-        }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <header>
-        <div class="header-content">
-            <div class="brand">
-                <i class="fa-solid fa-layer-group"></i> Crucicel
-            </div>
-            <div style="font-size: 0.9rem; color: var(--text-secondary);">
-                Generador de Producción v1.0
-            </div>
+      <div class="header-content">
+        <div class="brand">
+          <i class="fa-solid fa-layer-group"></i> Crucicel
         </div>
+        <div style="font-size: 0.9rem; color: var(--text-secondary)">
+          Generador Conectado v4.0
+        </div>
+      </div>
     </header>
 
     <main>
-        <!-- SIDEBAR DE CONFIGURACIÓN -->
-        <aside class="sidebar">
-            <div class="card">
-                <div class="card-title">
-                    <i class="fa-solid fa-code"></i> Datos JSON
-                </div>
-                <textarea id="jsonInput"></textarea>
-                <button class="btn btn-primary" style="margin-top: 15px;" onclick="processJson()">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generar Crucigrama
-                </button>
-            </div>
+      <aside class="sidebar">
+        <div class="card">
+          <div class="card-title">
+            <i class="fa-solid fa-code"></i> Datos JSON
+          </div>
+          <textarea id="jsonInput"></textarea>
+          <button
+            class="btn btn-primary"
+            style="margin-top: 15px"
+            onclick="processJson()"
+          >
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generar Crucigrama
+          </button>
+          <div id="statusMessage" class="status-message"></div>
+        </div>
 
-            <div class="card">
-                <div class="card-title">
-                    <i class="fa-solid fa-sliders"></i> Acciones
-                </div>
-                <div class="actions-grid">
-                    <button class="btn btn-outline" id="toggleBtn" onclick="toggleAnswers()">
-                        <i class="fa-solid fa-eye-slash"></i> Ocultar
-                    </button>
-                    <button class="btn btn-outline" onclick="downloadImage()">
-                        <i class="fa-solid fa-download"></i> Descargar
-                    </button>
-                </div>
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 10px; text-align: center;">
-                    La descarga se ajustará automáticamente al tamaño del papel.
-                </p>
-            </div>
-        </aside>
+        <div class="card">
+          <div class="card-title">
+            <i class="fa-solid fa-sliders"></i> Acciones
+          </div>
+          <div class="actions-grid">
+            <button
+              class="btn btn-outline"
+              id="toggleBtn"
+              onclick="toggleAnswers()"
+            >
+              <i class="fa-solid fa-eye-slash"></i> Ocultar
+            </button>
+            <button class="btn btn-outline" onclick="downloadImage()">
+              <i class="fa-solid fa-download"></i> Descargar
+            </button>
+          </div>
+          <p
+            style="
+              font-size: 0.8rem;
+              color: var(--text-secondary);
+              margin-top: 10px;
+              text-align: center;
+            "
+          >
+            La descarga se ajustará automáticamente al tamaño del papel.
+          </p>
+        </div>
+      </aside>
 
-        <!-- ÁREA DE TRABAJO -->
-        <section class="workspace">
-            <!-- Contenedor Blanco (Papel) -->
-            <div id="crossword-wrapper">
-                <div id="grid"></div>
-            </div>
+      <section class="workspace">
+        <div id="crossword-wrapper">
+          <div id="grid"></div>
+        </div>
 
-            <!-- Pistas -->
-            <div class="clues-section">
-                <div class="clues-col">
-                    <h3><i class="fa-solid fa-arrow-right-long"></i> Horizontales</h3>
-                    <ul id="h-clues" class="clues-list"></ul>
-                </div>
-                <div class="clues-col">
-                    <h3><i class="fa-solid fa-arrow-down-long"></i> Verticales</h3>
-                    <ul id="v-clues" class="clues-list"></ul>
-                </div>
-            </div>
-        </section>
+        <div class="clues-section">
+          <div class="clues-col">
+            <h3><i class="fa-solid fa-arrow-right-long"></i> Horizontales</h3>
+            <ul id="h-clues" class="clues-list"></ul>
+          </div>
+          <div class="clues-col">
+            <h3><i class="fa-solid fa-arrow-down-long"></i> Verticales</h3>
+            <ul id="v-clues" class="clues-list"></ul>
+          </div>
+        </div>
+
+        <div class="legend">
+          <span><i class="dot-h">●</i> Horizontal (Secuencial)</span>
+          <span><i class="dot-v">●</i> Vertical (Secuencial)</span>
+        </div>
+      </section>
     </main>
 
     <footer>
-        <div>Desarrollado por <strong>Celso Franciscano</strong></div>
-        <a href="https://github.com/celsofranciscano" target="_blank" class="footer-link">
-            <i class="fa-brands fa-github"></i> github.com/celsofranciscano
-        </a>
+      <div>Desarrollado por <strong>Celso Franciscano</strong></div>
+      <a
+        href="https://github.com/celsofranciscano"
+        target="_blank"
+        class="footer-link"
+      >
+        <i class="fa-brands fa-github"></i> github.com/celsofranciscano
+      </a>
     </footer>
 
-<script>
-    // DATOS INICIALES
-    const defaultData = {
-      "verticales": [
-        "reclutamiento", "seleccion", "capacitacion", "desempeno", 
-        "evaluacion", "liderazgo", "motivacion", "nomina", 
-        "contratacion", "beneficios", "competencias", "comunicacion", 
-        "retencion", "clima", "talento", "organizacional"
-      ],
-      "horizontales": [
-        "empleado", "empresa", "trabajo", "salario", "equipo", 
-        "jefe", "perfil", "puesto", "entrevista", "ascenso", 
-        "conflicto", "horario", "productividad", "cultura", 
-        "bienestar", "rendimiento"
-      ]
-    };
+    <script>
+      // DATOS INICIALES
+      const defaultData = {
+        verticales: [
+          "reclutamiento",
+          "seleccion",
+          "capacitacion",
+          "desempeno",
+          "evaluacion",
+          "liderazgo",
+          "motivacion",
+          "nomina",
+          "contratacion",
+          "beneficios",
+          "competencias",
+          "comunicacion",
+          "retencion",
+          "clima",
+          "talento",
+          "organizacional",
+        ],
+        horizontales: [
+          "empleado",
+          "empresa",
+          "trabajo",
+          "salario",
+          "equipo",
+          "jefe",
+          "perfil",
+          "puesto",
+          "entrevista",
+          "ascenso",
+          "conflicto",
+          "horario",
+          "productividad",
+          "cultura",
+          "bienestar",
+          "rendimiento",
+        ],
+      };
 
-    document.getElementById('jsonInput').value = JSON.stringify(defaultData, null, 2);
-    let answersVisible = true; 
+      document.getElementById("jsonInput").value = JSON.stringify(
+        defaultData,
+        null,
+        2,
+      );
+      let answersVisible = true;
 
-    window.onload = () => { processJson(); };
+      window.onload = () => {
+        processJson();
+      };
 
-    function toggleAnswers() {
+      function showStatus(message, type) {
+        const el = document.getElementById("statusMessage");
+        el.textContent = message;
+        el.className = `status-message ${type}`;
+        if (type !== "success") {
+          setTimeout(() => {
+            el.style.display = "none";
+          }, 8000);
+        }
+      }
+
+      function toggleAnswers() {
         answersVisible = !answersVisible;
-        const wrapper = document.getElementById('crossword-wrapper');
-        const btn = document.getElementById('toggleBtn');
-        
+        const wrapper = document.getElementById("crossword-wrapper");
+        const btn = document.getElementById("toggleBtn");
+
         if (answersVisible) {
-            wrapper.classList.remove('hidden-answers');
-            btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Ocultar';
+          wrapper.classList.remove("hidden-answers");
+          btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Ocultar';
         } else {
-            wrapper.classList.add('hidden-answers');
-            btn.innerHTML = '<i class="fa-solid fa-eye"></i> Mostrar';
+          wrapper.classList.add("hidden-answers");
+          btn.innerHTML = '<i class="fa-solid fa-eye"></i> Mostrar';
         }
-    }
+      }
 
-    async function downloadImage() {
-        const element = document.getElementById('crossword-wrapper');
+      async function downloadImage() {
+        const element = document.getElementById("crossword-wrapper");
         const wasVisible = answersVisible;
-        
-        // 1. Preparar para captura: Mostrar respuestas si queremos la solución, o dejar oculto si es para jugar.
-        // Aquí asumimos que se descarga para IMPRIMIR/JUGAR, así que ocultamos respuestas.
-        if(wasVisible) toggleAnswers();
-        
-        // Pequeña espera para renderizado CSS
-        await new Promise(r => setTimeout(r, 100));
+
+        if (wasVisible) toggleAnswers();
+        await new Promise((r) => setTimeout(r, 100));
 
         try {
-            // Capturar con escala alta para calidad de impresión
-            const canvas = await html2canvas(element, { 
-                scale: 3, 
-                backgroundColor: "#ffffff",
-                useCORS: true,
-                logging: false
-            });
-            
-            const link = document.createElement('a');
-            link.download = 'Crucicel-Crucigrama.png';
-            link.href = canvas.toDataURL("image/png");
-            link.click();
+          const canvas = await html2canvas(element, {
+            scale: 3,
+            backgroundColor: "#ffffff",
+            useCORS: true,
+            logging: false,
+          });
+
+          const link = document.createElement("a");
+          link.download = "Crucicel-Crucigrama.png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
         } catch (err) {
-            console.error(err);
-            alert("Error al generar imagen");
+          console.error(err);
+          alert("Error al generar imagen");
         } finally {
-            if(wasVisible) toggleAnswers();
+          if (wasVisible) toggleAnswers();
         }
-    }
+      }
 
-    function processJson() {
-        const raw = document.getElementById('jsonInput').value;
+      function processJson() {
+        const raw = document.getElementById("jsonInput").value;
         try {
-            const data = JSON.parse(raw);
-            if(!data.verticales || !data.horizontales) throw new Error("Faltan claves");
-            
-            answersVisible = true;
-            document.getElementById('crossword-wrapper').classList.remove('hidden-answers');
-            document.getElementById('toggleBtn').innerHTML = '<i class="fa-solid fa-eye-slash"></i> Ocultar';
-            
-            generateCrossword(data);
+          const data = JSON.parse(raw);
+          if (!data.verticales || !data.horizontales)
+            throw new Error("Faltan claves");
+
+          answersVisible = true;
+          document
+            .getElementById("crossword-wrapper")
+            .classList.remove("hidden-answers");
+          document.getElementById("toggleBtn").innerHTML =
+            '<i class="fa-solid fa-eye-slash"></i> Ocultar';
+
+          generateCrossword(data);
         } catch (e) {
-            alert("JSON inválido: " + e.message);
+          showStatus("JSON inválido: " + e.message, "error");
         }
-    }
+      }
 
-    function generateCrossword(data) {
-        const gridEl = document.getElementById('grid');
-        gridEl.innerHTML = '';
-        document.getElementById('h-clues').innerHTML = '';
-        document.getElementById('v-clues').innerHTML = '';
-        
-        let bestLayout = null;
-        let maxScore = -1;
+      function generateCrossword(data) {
+        const gridEl = document.getElementById("grid");
+        gridEl.innerHTML = "";
+        document.getElementById("h-clues").innerHTML = "";
+        document.getElementById("v-clues").innerHTML = "";
 
-        // Intentar generar la mejor distribución
-        const horizontales = [...data.horizontales].sort(() => Math.random() - 0.5);
-        const verticales = [...data.verticales].sort(() => Math.random() - 0.5);
+        // Normalizar y limpiar
+        const normalize = (w) =>
+          w
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
 
-        for(let i=0; i<40; i++) {
-            const layout = tryGenerateLayout([...horizontales], [...verticales]);
-            if(layout && layout.placedWords.length > maxScore) {
-                maxScore = layout.placedWords.length;
-                bestLayout = layout;
-            }
+        // Usar Sets para evitar duplicados desde el inicio
+        const hSet = new Set(
+          (data.horizontales || []).map(normalize).filter((w) => w.length > 1),
+        );
+        const vSet = new Set(
+          (data.verticales || []).map(normalize).filter((w) => w.length > 1),
+        );
+
+        const horizontales = Array.from(hSet);
+        const verticales = Array.from(vSet);
+
+        if (horizontales.length === 0 && verticales.length === 0) {
+          showStatus("No hay palabras válidas", "error");
+          return;
         }
 
-        if (!bestLayout) {
-            gridEl.innerHTML = '<p>Error generando cuadrícula.</p>';
-            return;
+        let bestResult = null;
+        let maxPlaced = 0;
+        let totalWords = horizontales.length + verticales.length;
+
+        // Intentar múltiples generaciones para maximizar la colocación
+        // Aumentamos intentos porque la conectividad estricta es más difícil de lograr
+        for (let attempt = 0; attempt < 200; attempt++) {
+          const result = tryGenerateLayout([...horizontales], [...verticales]);
+          if (result && result.placedWords.length > maxPlaced) {
+            maxPlaced = result.placedWords.length;
+            bestResult = result;
+            // Si logramos colocar todas, paramos
+            if (maxPlaced === totalWords) break;
+          }
         }
 
-        renderGrid(bestLayout);
-        renderClues(bestLayout);
-    }
+        if (!bestResult || bestResult.placedWords.length === 0) {
+          showStatus(
+            "No se pudo generar un crucigrama conectado. Intenta con palabras que compartan letras.",
+            "error",
+          );
+          gridEl.innerHTML =
+            '<p style="color:#991b1b; padding:20px;">❌ Error: No se encontraron intersecciones válidas</p>';
+          return;
+        }
 
-    // --- LÓGICA DE GENERACIÓN ---
+        // Verificar integridad
+        const placedSet = new Set(
+          bestResult.placedWords.map((p) => normalize(p.word)),
+        );
+        const allInput = new Set([...horizontales, ...verticales]);
+        const missing = [...allInput].filter((w) => !placedSet.has(w));
 
-    function tryGenerateLayout(hList, vList) {
-        const gridSize = 40; 
-        let tempGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
+        if (missing.length > 0) {
+          console.warn(
+            "⚠️ Palabras no colocadas (sin cruces posibles):",
+            missing,
+          );
+          showStatus(
+            `✅ Generado. ${bestResult.placedWords.length}/${totalWords} palabras conectadas. ${missing.length} no encajaron.`,
+            "warning",
+          );
+        } else {
+          showStatus(
+            `✅ ¡Perfecto! Todas las ${totalWords} palabras están conectadas.`,
+            "success",
+          );
+        }
+
+        renderGrid(bestResult);
+        renderClues(bestResult);
+      }
+
+      // === LÓGICA DE GENERACIÓN ESTRICTA ===
+
+      function tryGenerateLayout(hList, vList) {
+        const gridSize = 60;
+        let grid = Array(gridSize)
+          .fill(null)
+          .map(() => Array(gridSize).fill(null));
         let placed = [];
-        
-        if(hList.length === 0 && vList.length === 0) return null;
+        let placedSet = new Set();
 
-        let startWord = hList.length > 0 ? hList.pop() : vList[0];
-        let isVerticalStart = false;
-        if(!startWord) return null;
-        if(!hList.length && vList.length) { startWord = vList.pop(); isVerticalStart = true; }
+        // Combinar listas y ordenar por longitud descendente para crear estructura sólida
+        const allWords = [
+          ...hList.map((w) => ({ word: w, dir: "horizontal" })),
+          ...vList.map((w) => ({ word: w, dir: "vertical" })),
+        ];
 
-        const startX = Math.floor(gridSize / 2) - Math.floor(startWord.length / 2);
-        const startY = Math.floor(gridSize / 2);
-        
-        placeWord(tempGrid, startWord, startX, startY, isVerticalStart ? 'vertical' : 'horizontal');
-        placed.push({ word: startWord, x: startX, y: startY, dir: isVerticalStart ? 'vertical' : 'horizontal' });
+        // Ordenar: palabras más largas primero (más difíciles de colocar)
+        allWords.sort((a, b) => b.word.length - a.word.length);
 
-        let queue = [];
-        hList.forEach(w => queue.push({w, d:'horizontal'}));
-        vList.forEach(w => queue.push({w, d:'vertical'}));
-        
+        if (allWords.length === 0) return null;
+
+        // 1. Colocar la primera palabra (la más larga) en el centro
+        const startWord = allWords.shift();
+        const centerX =
+          Math.floor(gridSize / 2) - Math.floor(startWord.word.length / 2);
+        const centerY = Math.floor(gridSize / 2);
+
+        placeWordOnGrid(grid, startWord.word, centerX, centerY, startWord.dir);
+        placed.push({
+          word: startWord.word,
+          x: centerX,
+          y: centerY,
+          dir: startWord.dir,
+        });
+        placedSet.add(startWord.word);
+
+        // 2. Intentar colocar el resto BUSCANDO CRUCES OBLIGATORIOS
         let changed = true;
-        while(changed) {
-            changed = false;
-            queue.sort(() => Math.random() - 0.5);
-            for (let i = 0; i < queue.length; i++) {
-                const item = queue[i];
-                const pos = findBestPosition(tempGrid, item.w, item.d);
-                if (pos) {
-                    placeWord(tempGrid, item.w, pos.x, pos.y, item.d);
-                    placed.push({ word: item.w, x: pos.x, y: pos.y, dir: item.d });
-                    queue.splice(i, 1);
-                    i--;
-                    changed = true;
-                }
+        let iterations = 0;
+
+        while (changed && iterations < 3000 && allWords.length > 0) {
+          changed = false;
+          iterations++;
+
+          // Barajar para variar el resultado en cada intento
+          allWords.sort(() => Math.random() - 0.5);
+
+          for (let i = allWords.length - 1; i >= 0; i--) {
+            const item = allWords[i];
+            if (placedSet.has(item.word)) {
+              allWords.splice(i, 1);
+              continue;
             }
+
+            // ENCONTRAR POSICIÓN CON INTERSECCIÓN
+            // Esto garantiza que NINGUNA palabra quede suelta
+            const position = findStrictIntersectionPosition(
+              grid,
+              item.word,
+              item.dir,
+              placed,
+            );
+
+            if (
+              position &&
+              placeWordOnGrid(grid, item.word, position.x, position.y, item.dir)
+            ) {
+              placed.push({
+                word: item.word,
+                x: position.x,
+                y: position.y,
+                dir: item.dir,
+              });
+              placedSet.add(item.word);
+              allWords.splice(i, 1);
+              changed = true;
+            }
+          }
         }
 
-        // Bounding Box
-        let minX = gridSize, maxX = 0, minY = gridSize, maxY = 0;
-        placed.forEach(p => {
-            minX = Math.min(minX, p.x);
-            minY = Math.min(minY, p.y);
-            let len = p.word.length;
-            if(p.dir === 'horizontal') maxX = Math.max(maxX, p.x + len);
-            else maxX = Math.max(maxX, p.x + 1);
-            if(p.dir === 'vertical') maxY = Math.max(maxY, p.y + len);
-            else maxY = Math.max(maxY, p.y + 1);
-        });
+        if (placed.length === 0) return null;
 
-        minX = Math.max(0, minX - 1); minY = Math.max(0, minY - 1);
-        maxX = Math.min(gridSize, maxX + 1); maxY = Math.min(gridSize, maxY + 1);
+        // Calcular Bounding Box
+        let minX = gridSize,
+          maxX = 0,
+          minY = gridSize,
+          maxY = 0;
+        for (const p of placed) {
+          minX = Math.min(minX, p.x);
+          minY = Math.min(minY, p.y);
+          if (p.dir === "horizontal") {
+            maxX = Math.max(maxX, p.x + p.word.length);
+            maxY = Math.max(maxY, p.y + 1);
+          } else {
+            maxX = Math.max(maxX, p.x + 1);
+            maxY = Math.max(maxY, p.y + p.word.length);
+          }
+        }
+
+        // Padding
+        minX = Math.max(0, minX - 2);
+        minY = Math.max(0, minY - 2);
+        maxX = Math.min(gridSize, maxX + 2);
+        maxY = Math.min(gridSize, maxY + 2);
 
         const width = maxX - minX;
         const height = maxY - minY;
 
-        let finalGrid = [];
-        for(let y=minY; y<maxY; y++) {
-            let row = [];
-            for(let x=minX; x<maxX; x++) row.push(tempGrid[y][x]);
-            finalGrid.push(row);
+        // Extraer Grid Final
+        const finalGrid = [];
+        for (let y = minY; y < maxY; y++) {
+          const row = [];
+          for (let x = minX; x < maxX; x++) {
+            row.push(grid[y][x]);
+          }
+          finalGrid.push(row);
         }
 
-        placed.forEach(p => { p.x -= minX; p.y -= minY; });
+        // Ajustar coordenadas relativas
+        for (const p of placed) {
+          p.x -= minX;
+          p.y -= minY;
+        }
 
-        // Numeración
-        placed.sort((a,b) => (a.y - b.y) || (a.x - b.x));
-        let counter = 1;
-        const numMap = {}; 
-        placed.forEach(p => {
-            const key = `${p.x},${p.y}`;
-            if(!numMap[key]) numMap[key] = counter++;
-            p.num = numMap[key];
+        // === NUMERACIÓN SECUENCIAL INDEPENDIENTE ===
+        const horizontalWords = placed.filter((p) => p.dir === "horizontal");
+        const verticalWords = placed.filter((p) => p.dir === "vertical");
+
+        // Ordenar para numeración lógica (lectura izquierda-derecha, arriba-abajo)
+        horizontalWords.sort((a, b) => a.y - b.y || a.x - b.x);
+        verticalWords.sort((a, b) => a.x - b.x || a.y - b.y);
+
+        // Asignar números secuenciales independientes (1,2,3... para H y 1,2,3... para V)
+        horizontalWords.forEach((p, idx) => {
+          p.numH = idx + 1;
+        });
+        verticalWords.forEach((p, idx) => {
+          p.numV = idx + 1;
         });
 
-        return { grid: finalGrid, placedWords: placed, width, height };
-    }
+        return {
+          grid: finalGrid,
+          placedWords: placed,
+          width,
+          height,
+          hCount: horizontalWords.length,
+          vCount: verticalWords.length,
+        };
+      }
 
-    function placeWord(grid, word, x, y, dir) {
-        for (let i = 0; i < word.length; i++) {
-            const char = word[i].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            if (dir === 'horizontal') grid[y][x + i] = char;
-            else grid[y + i][x] = char;
-        }
-    }
-
-    function findBestPosition(grid, word, dir) {
-        const size = grid.length;
-        let candidates = [];
-        for (let i = 0; i < word.length; i++) {
-            const char = word[i].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            for (let r = 0; r < size; r++) {
-                for (let c = 0; c < size; c++) {
-                    if (grid[r][c] === char) {
-                        let sx = c - (dir === 'horizontal' ? i : 0);
-                        let sy = r - (dir === 'vertical' ? i : 0);
-                        if (isValidPlacement(grid, word, sx, sy, dir)) candidates.push({x: sx, y: sy});
-                    }
-                }
-            }
-        }
-        if(candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
-        return null;
-    }
-
-    function isValidPlacement(grid, word, x, y, dir) {
-        const size = grid.length;
-        if (x < 0 || y < 0) return false;
-        if (dir === 'horizontal' && x + word.length >= size) return false;
-        if (dir === 'vertical' && y + word.length >= size) return false;
+      function placeWordOnGrid(grid, word, x, y, dir) {
+        if (!isValidPlacement(grid, word, x, y, dir)) return false;
 
         for (let i = 0; i < word.length; i++) {
-            let cx = x + (dir === 'horizontal' ? i : 0);
-            let cy = y + (dir === 'vertical' ? i : 0);
-            let current = grid[cy][cx];
-            let target = word[i].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-            if (current !== null && current !== target) return false; 
-
-            if (current === null) {
-                if (dir === 'horizontal') {
-                    if ((cy > 0 && grid[cy-1][cx] !== null) || (cy < size-1 && grid[cy+1][cx] !== null)) return false;
-                } else {
-                    if ((cx > 0 && grid[cy][cx-1] !== null) || (cx < size-1 && grid[cy][cx+1] !== null)) return false;
-                }
-            }
+          const char = word[i].toUpperCase();
+          if (dir === "horizontal") grid[y][x + i] = char;
+          else grid[y + i][x] = char;
         }
-        
-        let prevX = x - (dir==='horizontal'?1:0);
-        let prevY = y - (dir==='vertical'?1:0);
-        if(prevX>=0 && prevY>=0 && grid[prevY][prevX] !== null) return false;
-
-        let nextX = x + (dir==='horizontal'?word.length:0);
-        let nextY = y + (dir==='vertical'?word.length:0);
-        if(nextX<size && nextY<size && grid[nextY][nextX] !== null) return false;
-
         return true;
-    }
+      }
 
-    function renderGrid(layout) {
-        const gridEl = document.getElementById('grid');
-        const wrapper = document.getElementById('crossword-wrapper');
-        
-        // Ajuste dinámico para pantalla:
-        // Calculamos un tamaño de celda que permita ver el grid completo sin scroll excesivo
-        // pero mantenemos un tamaño mínimo legible.
-        const containerWidth = wrapper.clientWidth - 80; // menos padding
-        const calculatedCellSize = Math.floor(containerWidth / layout.width);
-        const finalCellSize = Math.min(40, Math.max(20, calculatedCellSize)); // Entre 20px y 40px
+      function isValidPlacement(grid, word, x, y, dir) {
+        const size = grid.length;
+
+        // Límites
+        if (x < 0 || y < 0) return false;
+        if (dir === "horizontal" && x + word.length > size) return false;
+        if (dir === "vertical" && y + word.length > size) return false;
+
+        let hasIntersection = false;
+
+        for (let i = 0; i < word.length; i++) {
+          const cx = x + (dir === "horizontal" ? i : 0);
+          const cy = y + (dir === "vertical" ? i : 0);
+          const cell = grid[cy][cx];
+          const char = word[i].toUpperCase();
+
+          // Conflicto de letra
+          if (cell !== null && cell !== char) return false;
+
+          // Si hay cruce, marcarlo
+          if (cell !== null && cell === char) hasIntersection = true;
+
+          // Si celda vacía, verificar adyacentes prohibidos (no tocar otras palabras)
+          if (cell === null) {
+            if (dir === "horizontal") {
+              if (cy > 0 && grid[cy - 1][cx] !== null) return false;
+              if (cy < size - 1 && grid[cy + 1][cx] !== null) return false;
+            } else {
+              if (cx > 0 && grid[cy][cx - 1] !== null) return false;
+              if (cx < size - 1 && grid[cy][cx + 1] !== null) return false;
+            }
+          }
+        }
+
+        // Verificar extremos (no pegar al final de otra palabra)
+        const prevX = x - (dir === "horizontal" ? 1 : 0);
+        const prevY = y - (dir === "vertical" ? 1 : 0);
+        if (prevX >= 0 && prevY >= 0 && grid[prevY][prevX] !== null)
+          return false;
+
+        const nextX = x + (dir === "horizontal" ? word.length : 0);
+        const nextY = y + (dir === "vertical" ? word.length : 0);
+        if (nextX < size && nextY < size && grid[nextY][nextX] !== null)
+          return false;
+
+        // IMPORTANTE: Para palabras secundarias, exigir al menos un cruce
+        // Esto evita palabras flotantes
+        // Nota: La primera palabra no tiene cruces, pero esa validación se hace fuera
+        return true;
+      }
+
+      // Busca posiciones que GARANTICEN intersección con palabras existentes
+      function findStrictIntersectionPosition(grid, word, dir, placed) {
+        const size = grid.length;
+        const candidates = [];
+
+        // Escanear todas las palabras ya colocadas
+        for (const pw of placed) {
+          // Solo interesan cruces entre direcciones opuestas
+          if (dir === pw.dir) continue;
+
+          // Buscar letras coincidentes
+          for (let wi = 0; wi < word.length; wi++) {
+            const wc = word[wi].toUpperCase();
+
+            for (let pi = 0; pi < pw.word.length; pi++) {
+              const pc = pw.word[pi].toUpperCase();
+
+              if (wc === pc) {
+                // Calcular posición potencial de inicio
+                let nx, ny;
+                if (dir === "horizontal" && pw.dir === "vertical") {
+                  // Horizontal cruza vertical:
+                  // La X de la nueva es la X de la vieja menos el índice de la nueva
+                  // La Y de la nueva es la Y de la vieja más el índice de la vieja menos el índice de la nueva
+                  nx = pw.x - wi;
+                  ny = pw.y + pi - wi; // Error lógico aquí, corregido abajo
+                  // Corrección:
+                  // Si la palabra vertical está en (pw.x, pw.y) y la letra coincide en índice pi
+                  // La celda de cruce es (pw.x, pw.y + pi)
+                  // Para la palabra horizontal, esa celda es el índice wi
+                  // Entonces: nx + wi = pw.x  => nx = pw.x - wi
+                  //           ny = pw.y + pi
+                  ny = pw.y + pi;
+                } else if (dir === "vertical" && pw.dir === "horizontal") {
+                  // Vertical cruza horizontal:
+                  // Celda de cruce: (pw.x + pi, pw.y)
+                  // Para la vertical, esa celda es índice wi
+                  // nx = pw.x + pi
+                  // ny + wi = pw.y => ny = pw.y - wi
+                  nx = pw.x + pi;
+                  ny = pw.y - wi;
+                } else continue;
+
+                if (isValidPlacement(grid, word, nx, ny, dir)) {
+                  candidates.push({ x: nx, y: ny });
+                }
+              }
+            }
+          }
+        }
+
+        // Retornar una posición aleatoria de las válidas encontradas
+        return candidates.length > 0
+          ? candidates[Math.floor(Math.random() * candidates.length)]
+          : null;
+      }
+
+      function renderGrid(layout) {
+        const gridEl = document.getElementById("grid");
+        const wrapper = document.getElementById("crossword-wrapper");
+
+        // Calcular tamaño responsivo
+        const padding = 80;
+        const availableWidth = Math.max(300, wrapper.clientWidth - padding);
+        const availableHeight = Math.max(300, window.innerHeight - 300);
+
+        const cellByWidth = Math.floor(availableWidth / layout.width);
+        const cellByHeight = Math.floor(availableHeight / layout.height);
+        const finalCellSize = Math.min(
+          45,
+          Math.max(22, Math.min(cellByWidth, cellByHeight)),
+        );
 
         gridEl.style.gridTemplateColumns = `repeat(${layout.width}, ${finalCellSize}px)`;
         gridEl.style.gridTemplateRows = `repeat(${layout.height}, ${finalCellSize}px)`;
+        gridEl.style.width = `${layout.width * finalCellSize}px`;
+        gridEl.style.height = `${layout.height * finalCellSize}px`;
 
-        const numberMap = {};
-        layout.placedWords.forEach(w => numberMap[`${w.x},${w.y}`] = w.num);
+        // Mapear números por celda
+        const cellNumbers = new Map();
+
+        layout.placedWords.forEach((p) => {
+          const key = `${p.x},${p.y}`;
+          if (!cellNumbers.has(key)) cellNumbers.set(key, {});
+          const nums = cellNumbers.get(key);
+          if (p.numH !== undefined) nums.h = p.numH;
+          if (p.numV !== undefined) nums.v = p.numV;
+        });
 
         for (let y = 0; y < layout.height; y++) {
-            for (let x = 0; x < layout.width; x++) {
-                const char = layout.grid[y][x];
-                const cellDiv = document.createElement('div');
-                
-                if (char) {
-                    cellDiv.className = 'cell active';
-                    if (numberMap[`${x},${y}`]) {
-                        const span = document.createElement('span');
-                        span.className = 'number';
-                        span.innerText = numberMap[`${x},${y}`];
-                        // Ajustar tamaño de número según celda
-                        span.style.fontSize = (finalCellSize * 0.25) + 'px';
-                        cellDiv.appendChild(span);
-                    }
-                    const input = document.createElement('input');
-                    input.type = "text";
-                    input.value = char;
-                    input.readOnly = true;
-                    input.tabIndex = -1;
-                    input.style.fontSize = (finalCellSize * 0.5) + 'px'; // Letra ocupa 50% de celda
-                    cellDiv.appendChild(input);
-                } else {
-                    cellDiv.className = 'cell empty';
-                }
-                gridEl.appendChild(cellDiv);
-            }
-        }
-    }
+          for (let x = 0; x < layout.width; x++) {
+            const char = layout.grid[y][x];
+            const cellDiv = document.createElement("div");
 
-    function renderClues(layout) {
-        const hUl = document.getElementById('h-clues');
-        const vUl = document.getElementById('v-clues');
-        const sorted = [...layout.placedWords].sort((a,b) => a.num - b.num);
-        sorted.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `<strong>${item.num}.</strong> ${item.word}`;
-            if(item.dir === 'horizontal') hUl.appendChild(li);
-            else vUl.appendChild(li);
+            if (char) {
+              cellDiv.className = "cell active";
+
+              const nums = cellNumbers.get(`${x},${y}`);
+              if (nums) {
+                if (nums.h !== undefined) {
+                  const spanH = document.createElement("span");
+                  spanH.className = "number-h";
+                  spanH.innerText = nums.h;
+                  spanH.style.fontSize = `${Math.max(8, finalCellSize * 0.25)}px`;
+                  cellDiv.appendChild(spanH);
+                }
+                if (nums.v !== undefined) {
+                  const spanV = document.createElement("span");
+                  spanV.className = "number-v";
+                  spanV.innerText = nums.v;
+                  spanV.style.fontSize = `${Math.max(8, finalCellSize * 0.25)}px`;
+                  cellDiv.appendChild(spanV);
+                }
+              }
+
+              const input = document.createElement("input");
+              input.type = "text";
+              input.value = char;
+              input.readOnly = true;
+              input.tabIndex = -1;
+              input.style.fontSize = `${Math.max(12, finalCellSize * 0.5)}px`;
+              cellDiv.appendChild(input);
+            } else {
+              cellDiv.className = "cell empty";
+            }
+            gridEl.appendChild(cellDiv);
+          }
+        }
+      }
+
+      function renderClues(layout) {
+        const hUl = document.getElementById("h-clues");
+        const vUl = document.getElementById("v-clues");
+
+        const horizontalWords = layout.placedWords
+          .filter((p) => p.dir === "horizontal")
+          .sort((a, b) => a.numH - b.numH);
+        const verticalWords = layout.placedWords
+          .filter((p) => p.dir === "vertical")
+          .sort((a, b) => a.numV - b.numV);
+
+        horizontalWords.forEach((item) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${item.numH}.</strong> ${item.word}`;
+          hUl.appendChild(li);
         });
-    }
-</script>
-</body>
+
+        verticalWords.forEach((item) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${item.numV}.</strong> ${item.word}`;
+          vUl.appendChild(li);
+        });
+      }
+    </script>
+  </body>
 </html>
